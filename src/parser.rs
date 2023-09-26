@@ -3,7 +3,7 @@ use std::fs::read_to_string;
 pub struct Parser;
 
 impl Parser {
-    fn check_for_battiers() {
+    fn check_for_batteries() {
         
     }
 
