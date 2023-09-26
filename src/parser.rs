@@ -3,45 +3,39 @@ use std::fs::read_to_string;
 pub struct Parser;
 
 impl Parser {
+    fn check_for_battiers() {
+        
+    }
+
     pub fn parse_battery<F>(f: F) -> Vec<String>
     where
         F: Fn(&str) -> bool,
     {
         let contents = read_to_string("/sys/class/power_supply/BAT0/uevent");
-        unsafe {
         let keys = contents.as_ref().unwrap().split('\n')
-                        .collect::<Vec<&str>>()
-                        .into_iter()
                         .filter(|x| x.len() > 0)
                         .map(|line| {
-                            line.slice_unchecked(
-                                0,
-                                line.find('=').unwrap()
-                            )
-                        });
-        let values = contents.as_ref().unwrap().split('\n')
-                        .collect::<Vec<&str>>()
-                        .into_iter()
-                        .filter(|x| x.len() > 0)
-                        .map(|line| {
-                            line.slice_unchecked(
-                                line.find('=').unwrap()+1,
-                                line.len()
-                            )
-                        });
+                            let split = line.split('=').collect::<Vec<&str>>();
+                            (split[0], split[1])
 
-        let temp = keys.zip(values)
-            .filter(|(key, value)| {
-                f(key)
-            })
-            .collect::<Vec<(&str, &str)>>();
+                        })
+                        .filter(|(key, _)| f(key))
+                        .map(|(_, value)| value.to_string())
+                        .collect::<Vec<String>>();
 
-        let temp = temp.iter()
-            .map(|x| {
-                x.1.to_string()
-            })
-            .collect::<Vec<String>>();
-        temp
-        }
+        keys
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test] 
+    fn test_parse() {
+        let keys = ["POWER_SUPPLY_NAME"];
+        let ret = Parser::parse_battery(|s: &str| keys.contains(&s));
+    }
+
+
 }

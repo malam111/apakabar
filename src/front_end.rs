@@ -21,7 +21,7 @@ impl FrontEnd {
                             .name("Lautan Api".to_string())
                             .build();
         let status = format!("{}", batteries);
-        let xsetroot = Command::new("xsetroot")
+        let _xsetroot = Command::new("xsetroot")
                         .args(["-name", &status])
                         .spawn()
                         .expect("failed to display status");
