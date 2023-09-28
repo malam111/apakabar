@@ -7,11 +7,11 @@ impl Parser {
         
     }
 
-    pub fn parse_battery<F>(f: F) -> Vec<String>
+    pub fn parse_battery<'a, F>(path: &'a str, f: F) -> Vec<String>
     where
         F: Fn(&str) -> bool,
     {
-        let contents = read_to_string("/sys/class/power_supply/BAT0/uevent");
+        let contents = read_to_string(path);
         let keys = contents.as_ref().unwrap().split('\n')
                         .filter(|x| x.len() > 0)
                         .map(|line| {
@@ -33,8 +33,9 @@ mod tests {
     
     #[test] 
     fn test_parse() {
+        let path = "/sys/class/power_supply/BAT0/uevent";
         let keys = ["POWER_SUPPLY_NAME"];
-        let ret = Parser::parse_battery(|s: &str| keys.contains(&s));
+        let ret = Parser::parse_battery(path, |s: &str| keys.contains(&s));
     }
 
 

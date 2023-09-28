@@ -17,10 +17,22 @@ impl FrontEnd {
     }
 
     fn render() {
-        let batteries = Battery::builder()
-                            .name("Lautan Api".to_string())
-                            .build();
-        let status = format!("{}", batteries);
+        let paths = [
+            "BAT0",
+            "BAT1",
+        ];
+        let mut status = String::new();
+        for path in paths {
+            status.push_str(
+                format!("{} ", 
+                    Battery::builder(
+                        format!("/sys/class/power_supply/{}/uevent", &path)
+                        .as_str()
+                    ).build()
+                ).as_str()
+            );
+             
+        }
         let _xsetroot = Command::new("xsetroot")
                         .args(["-name", &status])
                         .spawn()

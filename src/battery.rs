@@ -3,45 +3,45 @@ use std::fmt;
 use crate::parser::Parser;
 
 #[derive(Debug)]
-enum PsStatus {
-    Unknown,
-    Charging,
-    Discharging,
-    NotCharging,
-    Full,
+enum PS_STATUS {
+    UNKNOWN,
+    CHARGING,
+    DISCHARGING,
+    NOT_CHARGING,
+    FULL,
 }
 
-impl PsStatus {
+impl PS_STATUS {
     fn value(&self) -> &str {
         match self {
-            Self::Unknown => "UNKNOWN",
-            Self::Charging => "CHARGING",
-            Self::Discharging => "DISCHARGING",
-            Self::NotCharging => "NOT CHARGING",
-            Self::Full => "FULL",
+            Self::UNKNOWN => "UNKNOWN",
+            Self::CHARGING => "CHARGING",
+            Self::DISCHARGING => "DISCHARGING",
+            Self::NOT_CHARGING => "NOT CHARGING",
+            Self::FULL => "FULL",
         }
     }
 }
 
-impl From<String> for PsStatus {
+impl From<String> for PS_STATUS {
     fn from(value: String) -> Self {
-        if value.eq_ignore_ascii_case("CHARGING") { return Self::Charging }
-        else if value.eq_ignore_ascii_case("DISCHARGING") { return Self::Discharging }
-        else if value.eq_ignore_ascii_case("NOT CHARGING") { return Self::NotCharging }
-        else if value.eq_ignore_ascii_case("FULL") { return Self::Full }
-        else { return Self::Unknown }
+        if value.eq_ignore_ascii_case("CHARGING") { return Self::CHARGING }
+        else if value.eq_ignore_ascii_case("DISCHARGING") { return Self::DISCHARGING }
+        else if value.eq_ignore_ascii_case("NOT CHARGING") { return Self::NOT_CHARGING }
+        else if value.eq_ignore_ascii_case("FULL") { return Self::FULL }
+        else { return Self::UNKNOWN }
     }
 }
 
-impl Default for PsStatus {
+impl Default for PS_STATUS {
     fn default() -> Self {
-        Self::Unknown 
+        Self::UNKNOWN 
     }
 }
 
 
 
-impl fmt::Display for PsStatus {
+impl fmt::Display for PS_STATUS {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.value())
     }
@@ -50,32 +50,15 @@ impl fmt::Display for PsStatus {
 #[derive(Debug, Default)]
 pub struct Battery {
     ps_name: String,
-    ps_status: PsStatus,
+    ps_status: PS_STATUS,
     ps_capacity: u8,
 }
 
 impl Battery {
-    pub fn builder() -> BatteryBuilder {
-        BatteryBuilder::new()
+    pub fn builder(path: &str) -> BatteryBuilder {
+        BatteryBuilder::new(path )
     }
-
-    fn init(self) -> Self {
-        let needs = [
-            "POWER_SUPPLY_NAME", 
-            "POWER_SUPPLY_STATUS", 
-            "POWER_SUPPLY_CAPACITY"
-        ];
-        let it = Parser::parse_battery(|key: &str| {
-                needs.contains(&key)
-        });
-        let ps_name = if self.ps_name.is_empty() { it[0].clone() } else { self.ps_name };
-        Self {
-            ps_name: ps_name,
-            ps_status: it[1].clone().into(),
-            ps_capacity: it[2].parse().unwrap(),
-            ..Self::default()
-        }
-    }
+    
 }
 
 
@@ -85,30 +68,31 @@ impl fmt::Display for Battery {
     }
 }
 
-pub struct BatteryBuilder {
-    ps_name: String,
+pub struct BatteryBuilder<'a> {
+    path: &'a str
 }
 
-impl BatteryBuilder {
-    pub fn new() -> Self {
+impl<'a> BatteryBuilder<'a> {
+    pub fn new(path: &'a str) -> Self {
         Self {
-            ps_name: String::new(),
+            path
         }
     }
 
-    pub fn name(mut self, name: String) -> Self {
-        self.ps_name = name;
-        self
+    pub fn build(mut self) -> Battery {
+        let needs = [
+            "POWER_SUPPLY_NAME",                                                   
+            "POWER_SUPPLY_STATUS", 
+            "POWER_SUPPLY_CAPACITY"
+        ];
+        let it = Parser::parse_battery(self.path, |key: &str| {
+                needs.contains(&key)
+        });
+        Battery {
+            ps_name: it[0].clone(),
+            ps_status: it[1].clone().into(),
+            ps_capacity: it[2].parse().unwrap(),
+            //..Self::default()
+        }
     }
-
-    pub fn build(self) -> Battery {
-        let bat = Battery {
-            ps_name: self.ps_name,
-            ..Battery::default()
-        };
-        bat.init() 
-    }
-
 }
-
-
