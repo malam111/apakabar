@@ -5,3 +5,15 @@ version = 3
 [[package]]
 name = "apakabar"
 version = "0.1.0"
+dependencies = [
+ "battery",
+ "brightness",
+]
+
+[[package]]
+name = "battery"
+version = "0.1.0"
+
+[[package]]
+name = "brightness"
+version = "0.1.0"
