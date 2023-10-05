@@ -8,6 +8,7 @@ version = "0.1.0"
 dependencies = [
  "battery",
  "brightness",
+ "memory",
 ]
 
 [[package]]
@@ -16,4 +17,8 @@ version = "0.1.0"
 
 [[package]]
 name = "brightness"
+version = "0.1.0"
+
+[[package]]
+name = "memory"
 version = "0.1.0"

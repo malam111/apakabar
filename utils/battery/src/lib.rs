@@ -1,5 +1,9 @@
 mod battery;
 
+pub use battery::Battery;
+pub use battery::BatteryBuilder;
+pub use battery::Attributes;
+
 #[cfg(test)]
 mod tests {
     use super::*;

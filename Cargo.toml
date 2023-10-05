@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 battery = { path = "utils/battery" }
 brightness = { path = "utils/brightness" }
+memory = { path = "utils/memory" }

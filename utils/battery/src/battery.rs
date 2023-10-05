@@ -248,17 +248,21 @@ impl<'a> BatteryBuilder<'a> {
 
     }
 
-    pub fn build(&mut self) {
+    pub fn build(&mut self) -> Vec<Battery> {
         //self.discover();
         let mut buffer = String::new();
+        let mut batteries = Vec::<Battery>::new();
         
         for uevent in self.uevents.iter_mut().rev() {
             uevent.reader.seek(io::SeekFrom::Start(0));
             uevent.reader.read_to_string(&mut buffer);
             let batt = Battery::from_str(&buffer, Some(Into::<String>::into(self.attr).as_str()));
-            print!("{} ", batt); 
+            //print!("{} ", batt); 
+            batteries.push(batt);
+            buffer.clear();
         }
-        print!("\n");
+        //print!("\n");
+        batteries
 
     }
 
